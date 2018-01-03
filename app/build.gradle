@@ -28,6 +28,14 @@ android {
         vectorDrawables.useSupportLibrary = true
         multiDexEnabled = true
     }
+    splits {
+        abi {
+            enable true
+            reset()
+            include 'armeabi-v7a', 'arm64-v8a', 'x86', 'x86_64'
+            universalApk false
+        }
+    }
     buildTypes {
         release {
             minifyEnabled false
@@ -123,4 +131,16 @@ dependencies {
     // PW
     compile fileTree(dir: 'libs', include: ['*.jar'])
     compile project(":tn")
+}
+
+ext.abiCodes = ['armeabi-v7a': 1, 'arm64-v8a': 2, 'x86': 3, 'x86_64': 4]
+import com.android.build.OutputFile
+
+android.applicationVariants.all { variant ->
+    variant.outputs.each { output ->
+        def baseAbiVersionCode = project.ext.abiCodes.get(output.getFilter(OutputFile.ABI))
+        if (baseAbiVersionCode != null) {
+            output.versionCodeOverride = baseAbiVersionCode * 1000000 + variant.versionCode
+        }
+    }
 }
